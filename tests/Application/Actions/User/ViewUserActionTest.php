@@ -14,9 +14,9 @@ use DI\Container;
 use Slim\Middleware\ErrorMiddleware;
 use Tests\TestCase;
 
-class ViewUserActionTest extends TestCase
+final class ViewUserActionTest extends TestCase
 {
-    public function testAction()
+    public function testAction(): void
     {
         $app = $this->getAppInstance();
 
@@ -25,55 +25,55 @@ class ViewUserActionTest extends TestCase
 
         $user = new User(1, 'bill.gates', 'Bill', 'Gates');
 
-        $userRepositoryProphecy = $this->prophesize(UserRepository::class);
-        $userRepositoryProphecy
+        $objectProphecy = $this->prophesize(UserRepository::class);
+        $objectProphecy
             ->findUserOfId(1)
             ->willReturn($user)
             ->shouldBeCalledOnce();
 
-        $container->set(UserRepository::class, $userRepositoryProphecy->reveal());
+        $container->set(UserRepository::class, $objectProphecy->reveal());
 
-        $request = $this->createRequest('GET', '/users/1');
-        $response = $app->handle($request);
+        $serverRequest = $this->createRequest('GET', '/users/1');
+        $response = $app->handle($serverRequest);
 
         $payload = (string) $response->getBody();
-        $expectedPayload = new ActionPayload(200, $user);
-        $serializedPayload = json_encode($expectedPayload, JSON_PRETTY_PRINT);
+        $actionPayload = new ActionPayload(200, $user);
+        $serializedPayload = json_encode($actionPayload, JSON_PRETTY_PRINT);
 
         $this->assertEquals($serializedPayload, $payload);
     }
 
-    public function testActionThrowsUserNotFoundException()
+    public function testActionThrowsUserNotFoundException(): void
     {
         $app = $this->getAppInstance();
 
         $callableResolver = $app->getCallableResolver();
         $responseFactory = $app->getResponseFactory();
 
-        $errorHandler = new HttpErrorHandler($callableResolver, $responseFactory);
+        $httpErrorHandler = new HttpErrorHandler($callableResolver, $responseFactory);
         $errorMiddleware = new ErrorMiddleware($callableResolver, $responseFactory, true, false, false);
-        $errorMiddleware->setDefaultErrorHandler($errorHandler);
+        $errorMiddleware->setDefaultErrorHandler($httpErrorHandler);
 
         $app->add($errorMiddleware);
 
         /** @var Container $container */
         $container = $app->getContainer();
 
-        $userRepositoryProphecy = $this->prophesize(UserRepository::class);
-        $userRepositoryProphecy
+        $objectProphecy = $this->prophesize(UserRepository::class);
+        $objectProphecy
             ->findUserOfId(1)
             ->willThrow(new UserNotFoundException())
             ->shouldBeCalledOnce();
 
-        $container->set(UserRepository::class, $userRepositoryProphecy->reveal());
+        $container->set(UserRepository::class, $objectProphecy->reveal());
 
-        $request = $this->createRequest('GET', '/users/1');
-        $response = $app->handle($request);
+        $serverRequest = $this->createRequest('GET', '/users/1');
+        $response = $app->handle($serverRequest);
 
         $payload = (string) $response->getBody();
-        $expectedError = new ActionError(ActionError::RESOURCE_NOT_FOUND, 'The user you requested does not exist.');
-        $expectedPayload = new ActionPayload(404, null, $expectedError);
-        $serializedPayload = json_encode($expectedPayload, JSON_PRETTY_PRINT);
+        $actionError = new ActionError(ActionError::RESOURCE_NOT_FOUND, 'The user you requested does not exist.');
+        $actionPayload = new ActionPayload(404, null, $actionError);
+        $serializedPayload = json_encode($actionPayload, JSON_PRETTY_PRINT);
 
         $this->assertEquals($serializedPayload, $payload);
     }

@@ -11,9 +11,9 @@ use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Log\LoggerInterface;
 use Tests\TestCase;
 
-class ActionTest extends TestCase
+final class ActionTest extends TestCase
 {
-    public function testActionSetsHttpCodeInRespond()
+    public function testActionSetsHttpCodeInRespond(): void
     {
         $app = $this->getAppInstance();
         $container = $app->getContainer();
@@ -21,9 +21,9 @@ class ActionTest extends TestCase
 
         $testAction = new class ($logger) extends Action {
             public function __construct(
-                LoggerInterface $loggerInterface
+                LoggerInterface $logger
             ) {
-                parent::__construct($loggerInterface);
+                parent::__construct($logger);
             }
 
             public function action(): Response
@@ -40,13 +40,13 @@ class ActionTest extends TestCase
         };
 
         $app->get('/test-action-response-code', $testAction);
-        $request = $this->createRequest('GET', '/test-action-response-code');
-        $response = $app->handle($request);
+        $serverRequest = $this->createRequest('GET', '/test-action-response-code');
+        $response = $app->handle($serverRequest);
 
         $this->assertEquals(202, $response->getStatusCode());
     }
 
-    public function testActionSetsHttpCodeRespondData()
+    public function testActionSetsHttpCodeRespondData(): void
     {
         $app = $this->getAppInstance();
         $container = $app->getContainer();
@@ -54,9 +54,9 @@ class ActionTest extends TestCase
 
         $testAction = new class ($logger) extends Action {
             public function __construct(
-                LoggerInterface $loggerInterface
+                LoggerInterface $logger
             ) {
-                parent::__construct($loggerInterface);
+                parent::__construct($logger);
             }
 
             public function action(): Response
@@ -71,8 +71,8 @@ class ActionTest extends TestCase
         };
 
         $app->get('/test-action-response-code', $testAction);
-        $request = $this->createRequest('GET', '/test-action-response-code');
-        $response = $app->handle($request);
+        $serverRequest = $this->createRequest('GET', '/test-action-response-code');
+        $response = $app->handle($serverRequest);
 
         $this->assertEquals(202, $response->getStatusCode());
     }

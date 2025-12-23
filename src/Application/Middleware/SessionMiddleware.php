@@ -14,13 +14,13 @@ class SessionMiddleware implements Middleware
     /**
      * {@inheritdoc}
      */
-    public function process(Request $request, RequestHandler $handler): Response
+    public function process(Request $request, RequestHandler $requestHandler): Response
     {
         if (isset($_SERVER['HTTP_AUTHORIZATION'])) {
             session_start();
             $request = $request->withAttribute('session', $_SESSION);
         }
 
-        return $handler->handle($request);
+        return $requestHandler->handle($request);
     }
 }

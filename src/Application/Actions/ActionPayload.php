@@ -15,16 +15,16 @@ class ActionPayload implements JsonSerializable
      */
     private $data;
 
-    private ?ActionError $error;
+    private ?ActionError $actionError;
 
     public function __construct(
         int $statusCode = 200,
         $data = null,
-        ?ActionError $error = null
+        ?ActionError $actionError = null
     ) {
         $this->statusCode = $statusCode;
         $this->data = $data;
-        $this->error = $error;
+        $this->actionError = $actionError;
     }
 
     public function getStatusCode(): int
@@ -42,7 +42,7 @@ class ActionPayload implements JsonSerializable
 
     public function getError(): ?ActionError
     {
-        return $this->error;
+        return $this->actionError;
     }
 
     #[\ReturnTypeWillChange]
@@ -54,8 +54,8 @@ class ActionPayload implements JsonSerializable
 
         if ($this->data !== null) {
             $payload['data'] = $this->data;
-        } elseif ($this->error !== null) {
-            $payload['error'] = $this->error;
+        } elseif ($this->actionError !== null) {
+            $payload['error'] = $this->actionError;
         }
 
         return $payload;

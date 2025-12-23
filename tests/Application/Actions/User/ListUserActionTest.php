@@ -10,9 +10,9 @@ use App\Domain\User\User;
 use DI\Container;
 use Tests\TestCase;
 
-class ListUserActionTest extends TestCase
+final class ListUserActionTest extends TestCase
 {
-    public function testAction()
+    public function testAction(): void
     {
         $app = $this->getAppInstance();
 
@@ -21,20 +21,20 @@ class ListUserActionTest extends TestCase
 
         $user = new User(1, 'bill.gates', 'Bill', 'Gates');
 
-        $userRepositoryProphecy = $this->prophesize(UserRepository::class);
-        $userRepositoryProphecy
+        $objectProphecy = $this->prophesize(UserRepository::class);
+        $objectProphecy
             ->findAll()
             ->willReturn([$user])
             ->shouldBeCalledOnce();
 
-        $container->set(UserRepository::class, $userRepositoryProphecy->reveal());
+        $container->set(UserRepository::class, $objectProphecy->reveal());
 
-        $request = $this->createRequest('GET', '/users');
-        $response = $app->handle($request);
+        $serverRequest = $this->createRequest('GET', '/users');
+        $response = $app->handle($serverRequest);
 
         $payload = (string) $response->getBody();
-        $expectedPayload = new ActionPayload(200, [$user]);
-        $serializedPayload = json_encode($expectedPayload, JSON_PRETTY_PRINT);
+        $actionPayload = new ActionPayload(200, [$user]);
+        $serializedPayload = json_encode($actionPayload, JSON_PRETTY_PRINT);
 
         $this->assertEquals($serializedPayload, $payload);
     }

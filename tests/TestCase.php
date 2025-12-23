@@ -21,7 +21,6 @@ class TestCase extends PHPUnit_TestCase
     use ProphecyTrait;
 
     /**
-     * @return App
      * @throws Exception
      */
     protected function getAppInstance(): App
@@ -61,14 +60,6 @@ class TestCase extends PHPUnit_TestCase
         return $app;
     }
 
-    /**
-     * @param string $method
-     * @param string $path
-     * @param array  $headers
-     * @param array  $cookies
-     * @param array  $serverParams
-     * @return Request
-     */
     protected function createRequest(
         string $method,
         string $path,

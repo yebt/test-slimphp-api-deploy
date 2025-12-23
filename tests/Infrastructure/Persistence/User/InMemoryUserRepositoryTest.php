@@ -9,18 +9,18 @@ use App\Domain\User\UserNotFoundException;
 use App\Infrastructure\Persistence\User\InMemoryUserRepository;
 use Tests\TestCase;
 
-class InMemoryUserRepositoryTest extends TestCase
+final class InMemoryUserRepositoryTest extends TestCase
 {
-    public function testFindAll()
+    public function testFindAll(): void
     {
         $user = new User(1, 'bill.gates', 'Bill', 'Gates');
 
-        $userRepository = new InMemoryUserRepository([1 => $user]);
+        $inMemoryUserRepository = new InMemoryUserRepository([1 => $user]);
 
-        $this->assertEquals([$user], $userRepository->findAll());
+        $this->assertEquals([$user], $inMemoryUserRepository->findAll());
     }
 
-    public function testFindAllUsersByDefault()
+    public function testFindAllUsersByDefault(): void
     {
         $users = [
             1 => new User(1, 'bill.gates', 'Bill', 'Gates'),
@@ -30,24 +30,24 @@ class InMemoryUserRepositoryTest extends TestCase
             5 => new User(5, 'jack.dorsey', 'Jack', 'Dorsey'),
         ];
 
-        $userRepository = new InMemoryUserRepository();
+        $inMemoryUserRepository = new InMemoryUserRepository();
 
-        $this->assertEquals(array_values($users), $userRepository->findAll());
+        $this->assertEquals(array_values($users), $inMemoryUserRepository->findAll());
     }
 
-    public function testFindUserOfId()
+    public function testFindUserOfId(): void
     {
         $user = new User(1, 'bill.gates', 'Bill', 'Gates');
 
-        $userRepository = new InMemoryUserRepository([1 => $user]);
+        $inMemoryUserRepository = new InMemoryUserRepository([1 => $user]);
 
-        $this->assertEquals($user, $userRepository->findUserOfId(1));
+        $this->assertEquals($user, $inMemoryUserRepository->findUserOfId(1));
     }
 
-    public function testFindUserOfIdThrowsNotFoundException()
+    public function testFindUserOfIdThrowsNotFoundException(): void
     {
-        $userRepository = new InMemoryUserRepository([]);
+        $inMemoryUserRepository = new InMemoryUserRepository([]);
         $this->expectException(UserNotFoundException::class);
-        $userRepository->findUserOfId(1);
+        $inMemoryUserRepository->findUserOfId(1);
     }
 }

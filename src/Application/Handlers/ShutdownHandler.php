@@ -12,24 +12,24 @@ class ShutdownHandler
 {
     private Request $request;
 
-    private HttpErrorHandler $errorHandler;
+    private HttpErrorHandler $httpErrorHandler;
 
     private bool $displayErrorDetails;
 
     public function __construct(
         Request $request,
-        HttpErrorHandler $errorHandler,
+        HttpErrorHandler $httpErrorHandler,
         bool $displayErrorDetails
     ) {
         $this->request = $request;
-        $this->errorHandler = $errorHandler;
+        $this->httpErrorHandler = $httpErrorHandler;
         $this->displayErrorDetails = $displayErrorDetails;
     }
 
-    public function __invoke()
+    public function __invoke(): void
     {
         $error = error_get_last();
-        if ($error) {
+        if ($error !== null && $error !== []) {
             $errorFile = $error['file'];
             $errorLine = $error['line'];
             $errorMessage = $error['message'];
@@ -39,29 +39,29 @@ class ShutdownHandler
             if ($this->displayErrorDetails) {
                 switch ($errorType) {
                     case E_USER_ERROR:
-                        $message = "FATAL ERROR: {$errorMessage}. ";
-                        $message .= " on line {$errorLine} in file {$errorFile}.";
+                        $message = sprintf('FATAL ERROR: %s. ', $errorMessage);
+                        $message .= sprintf(' on line %d in file %s.', $errorLine, $errorFile);
                         break;
 
                     case E_USER_WARNING:
-                        $message = "WARNING: {$errorMessage}";
+                        $message = 'WARNING: ' . $errorMessage;
                         break;
 
                     case E_USER_NOTICE:
-                        $message = "NOTICE: {$errorMessage}";
+                        $message = 'NOTICE: ' . $errorMessage;
                         break;
 
                     default:
-                        $message = "ERROR: {$errorMessage}";
-                        $message .= " on line {$errorLine} in file {$errorFile}.";
+                        $message = 'ERROR: ' . $errorMessage;
+                        $message .= sprintf(' on line %d in file %s.', $errorLine, $errorFile);
                         break;
                 }
             }
 
-            $exception = new HttpInternalServerErrorException($this->request, $message);
-            $response = $this->errorHandler->__invoke(
+            $httpInternalServerErrorException = new HttpInternalServerErrorException($this->request, $message);
+            $response = $this->httpErrorHandler->__invoke(
                 $this->request,
-                $exception,
+                $httpInternalServerErrorException,
                 $this->displayErrorDetails,
                 false,
                 false,
